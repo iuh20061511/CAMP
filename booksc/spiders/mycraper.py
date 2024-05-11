@@ -6,15 +6,16 @@ class MycraperSpider(scrapy.Spider):
     allowed_domains = ["books.toscrape.com"]
     start_urls = ["https://books.toscrape.com/"]
 
+    page_count = 0
     def parse(self, response):
         # Extract data from current page
         yield from self.parse_page(response)
 
         # Check for next page link and follow it
-        #next_page = response.css('li.next a::attr(href)').get()
-        #if next_page and self.page_count < 2:  # Check if there is a next page and if the page count is less than 5
-           # self.page_count += 1  # Increment page count
-           # yield scrapy.Request(response.urljoin(next_page), callback=self.parse)
+        next_page = response.css('li.next a::attr(href)').get()
+        if next_page and self.page_count < 2:  # Check if there is a next page and if the page count is less than 5
+            self.page_count += 1  # Increment page count
+            yield scrapy.Request(response.urljoin(next_page), callback=self.parse)
     def parse_page(self, response):
         # Extract data from the current page
         courseList = response.xpath('//div[@class="row"]/descendant::ol/li/article/h3/a/@href').getall()
